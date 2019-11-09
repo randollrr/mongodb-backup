@@ -1,0 +1,36 @@
+{
+    "backup": {
+        "path": "/var/backups/mongodb",
+        "databases": [
+            "admin",
+            "ornu"
+        ],
+        "daily": {
+            "retention": 6
+        },
+        "weekly": {
+            "on": "sunday",
+            "retention": 4
+        },
+        "monthly": {
+            "on": "1",
+            "retention": 6
+        }
+    },
+    "service": {
+        "app-name": "mongobak",
+        "app-logs": "/var/log",
+        "log-level": "DEBUG",
+        "log-stdout": true
+    },
+    "db-instance": {
+        "location": "local",
+        "username": null,
+        "password": null,
+        "host": "localhost",
+        "port": 27017,
+        "database": "ornu",
+        "authenticationDatabase": "ornu"
+    },
+    "last_run": "2019-10-01"
+}

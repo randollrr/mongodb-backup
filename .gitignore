@@ -1,0 +1,8 @@
+# workspace
+env/
+.vscode/
+.idea/
+
+# platform
+__pycache__/
+.py_test/
