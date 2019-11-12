@@ -18,3 +18,7 @@
 
 ## Install backup script
 git clone https://github.com/randollrr/mongodb-backup.git
+
+## Copy cron job into /etc/cron.daily/
+cp mongobak-cron /etc/cron.daily/mongobak-cron
+
