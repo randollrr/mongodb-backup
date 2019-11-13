@@ -24,49 +24,32 @@ def backup_mongo(dbs_l, path, conf):
         b_dir = 'weekly'
     if m_today.tm_mday == config['backup']['monthly']['on'] and config['backup']['monthly']['retention'] > 0:
         b_dir = 'monthly'
-    log.debug(f"Retention: {config['backup'][b_dir]['retention']}")
-    log.debug(f"Policy: {b_dir}")
+    log.debug('Retention: {}'.format(config['backup'][b_dir]['retention']))
+    log.debug('Policy: {}'.format(b_dir))
 
     # -- run backup for each database
     if dbs_l and (type(dbs_l) is list):
         for dbs in dbs_l:
-            log.info(f'Database name: {dbs}')
-            log.info(f'creating backup file: {dbs}-{dt_label}.gz in {path}/{b_dir}/')
+            log.info('Database name: {}'.format(dbs))
+            log.info('creating backup file: {}-{}.gz in {}/{}/'.format(dbs, dt_label, path, b_dir))
 
             cmd = ['mongodump']
             if conf['username'] and conf['password']:
                 cmd += ['-u', conf['username'], '-p', conf['password']]
-            cmd += [f'--authenticationDatabase={conf["authenticationDatabase"]}',
-                    f'--archive={path}/{b_dir}/{dbs}-{dt_label}.gz', '--gzip', '--db', dbs]
-            log.debug(f'command: {" ".join(cmd)}')
+            cmd += ['--authenticationDatabase={}'.format(conf["authenticationDatabase"]),
+                    '--archive={}/{}/{}-{}.gz'.format(path, b_dir, dbs, dt_label), '--gzip', '--db', dbs]
+            log.debug('command: {}'.format(" ".join(cmd)))
             out = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, universal_newlines=True)
             log.info(out.stdout)
             r = True
 
             # -- apply retention policy
-            _retainer(b_dir, dbs)
+            FileManager.retainer(b_dir, dbs)
 
             config['last_run'] = dt_label
             config.save()
 
     return r
-
-
-def _retainer(bp, db):
-    ret_d = config['backup'][bp]['retention']
-    if ret_d > 0:
-        fm = FileManager(f"{config['backup']['path']}/{bp}")
-        del_l = fm.ts_sorted_file('list', fn_pattern=f'.*{db}.*')
-        if not ret_d > len(del_l):
-            t = []
-            # -- unpack filename
-            for f in del_l:
-                t += [f[0]]
-            del_l = t[:len(t)-ret_d]
-            log.debug(f'list of file to delete: {del_l}')
-            fm.delete_files(f"{config['backup']['path']}/{bp}", del_l)
-            del del_l, t
-        log.info(f'applied retention policy: {bp}')
 
 
 def main():
@@ -87,7 +70,7 @@ def main():
 
             last_run = config['last_run']
             if last_run:
-                log.info(f'checked last run: {last_run}')
+                log.info('checked last run: {}'.format(last_run))
                 if not last_run == time.strftime('%Y-%m-%d', m_today):
                     run = True
                 else:
