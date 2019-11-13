@@ -8,7 +8,7 @@ for many apps or scripts. A generic API to access:
 
 """
 __authors__ = ['randollrr', 'msmith8']
-__version__ = '1.6'
+__version__ = '1.7'
 
 import json
 import logging
@@ -50,10 +50,10 @@ class Config:
 
         # -- check name of config file
         if not self.file:
-            if os.path.exists(f'{wd()}/config.json'):
-                self.file = f'{wd()}/config.json'
-            elif yaml and os.path.exists(f'{wd()}/config.yaml'):
-                self.file = f'{wd()}/config.yaml'
+            if os.path.exists('{}/config.json'.format(wd())):
+                self.file = '{}/config.json'.format(wd())
+            elif yaml and os.path.exists('{}/config.yaml').format(wd()):
+                self.file = '{}/config.yaml'.format(wd())
 
         # -- read configs
         if self.file:
@@ -214,7 +214,7 @@ class Email:
 
 def wd():
     """
-    Provide working directory where the utils script located.
+    Provide the Working Directory where the auto_utils script is located.
     :return wd: string description
     """
     path = os.path.realpath(__file__).split('/')
@@ -223,12 +223,3 @@ def wd():
 
 log = Log()
 config = Config()
-
-# changelog
-# 1.6 optimized Config(), make it more flexible to read, write yaml/json file
-#     added Config.set(), to set a new configuartion file
-#     added Log.config(), to set a new log configuartion
-#     optimized Log(), added support for on-screen logging toggle
-#     removed Database()
-#     changed params access type
-#     added generic config object to be imported

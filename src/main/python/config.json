@@ -14,7 +14,7 @@
         },
         "monthly": {
             "on": "1",
-            "retention": 6
+            "retention": 3
         }
     },
     "service": {

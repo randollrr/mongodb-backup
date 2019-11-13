@@ -4,7 +4,7 @@ import re
 from auto_utils import log
 
 __authors__ = ['randollrr']
-__version__ = '2.0'
+__version__ = '2.2'
 
 
 class FileManager:
@@ -19,7 +19,7 @@ class FileManager:
         self.arc = archive
 
     @staticmethod
-    def delete_files(path, files):
+    def del_files(path, files):
         """
         Delete list of files provided.
         :param path: directory (only)
@@ -34,7 +34,7 @@ class FileManager:
                         r = True
                     except Exception as e:
                         r = False
-                        log.error(f"Couldn't remove file: {fn}")
+                        log.error("Couldn't remove file: {}".format(fn))
                         log.debug(e)
 
     @staticmethod
@@ -49,15 +49,15 @@ class FileManager:
         if not known_dir:
             known_dir = ['daily', 'weekly', 'monthly']
 
-        log.info(f'check directory structure for: {path}')
+        log.info('check directory structure for: {}'.format(path))
         try:
             for d in known_dir:
                 if not os.path.exists(os.path.join(path, d)):
-                    log.info(f'Creating: {path}/{d}')
+                    log.info('Creating: {}/{}'.format(path, d))
                     os.makedirs(os.path.join(path, d), exist_ok=True)
             r = True
         except Exception as e:
-            log.info(f"Couldn't setup directory structure.\n{e}")
+            log.info("Couldn't setup directory structure.\n{}".format(e))
         return r
 
     @staticmethod
@@ -96,7 +96,7 @@ class FileManager:
                     ret = '{}_{}.{}'.format(nfn, fnum, ext)
                 except Exception as e:
                     ret = '{}_{}'.format(fn, fnum)
-                    log.debug(f'Error: {e}')
+                    log.debug('Error: {}'.format(e))
             return ret
 
         def do_move(fnum=0):
@@ -124,6 +124,33 @@ class FileManager:
         """
         return self.ts_sorted_file('oldest', directory=directory, fn_pattern=fn_pattern)
 
+    @staticmethod
+    def retainer(bp, fn, ret_d):
+        """
+        Function to apply retention policy.
+        :param bp: base path
+        :param fn: file names containing substring
+        :param ret_d: number of files to retain 
+        """
+        if ret_d > 0:
+            fm = FileManager(bp)
+            del_l = fm.ts_sorted_file('list', fn_pattern='.*{}.*'.format(fn))
+            if not ret_d > len(del_l):
+                t = []
+                # -- unpack filename
+                for f in del_l:
+                    t += [f[0]]
+                del_l = t[:len(t)-ret_d]
+                log.debug('list of file to delete: {}'.format(del_l))
+                FileManager.del_files(bp, del_l)
+                del del_l, t
+            log.info('applied retention policy: {}'.format(bp))
+
+    @staticmethod
+    def touch(fn, time=None):
+        with open(fn, 'a') as f:
+            os.utime(f.name, time)
+
     def ts_sorted_file(self, action='latest', directory=None, fn_pattern=None):
         """
         Look for the latest or oldest modified date from files in directory.
@@ -139,8 +166,8 @@ class FileManager:
                 directory = self.src
 
         # -- build file list
-        log.debug(f'directory: {directory}')
-        log.debug(f'directory exists: {self.exists(directory)}')
+        log.debug('directory: {}'.format(directory))
+        log.debug('directory exists: {}'.format(self.exists(directory)))
         if directory and self.exists(directory):
             t = []
             l = [[int(os.stat(os.path.join(directory, f)).st_ctime*1000), f] for f in os.listdir(directory)]
@@ -162,13 +189,3 @@ class FileManager:
                 r = final[0], final[1]
             del l, t, action, final
         return r
-
-
-# changelog
-# 1.0 initial release with ept file parser
-# 2.0 optimized move.do_move()
-#     added now return file ts in latest()
-#     ported dir_struct() from mongobak.py
-#     optimized latest() --> ts_sorted_file()
-#     added oldest()
-#     added delete()
