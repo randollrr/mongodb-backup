@@ -2,8 +2,7 @@
     "backup": {
         "path": "/var/backups/mongodb",
         "databases": [
-            "admin",
-            "ornu"
+            "admin"
         ],
         "daily": {
             "retention": 6
@@ -29,8 +28,8 @@
         "password": null,
         "host": "localhost",
         "port": 27017,
-        "database": "ornu",
-        "authenticationDatabase": "ornu"
+        "database": "admin",
+        "authenticationDatabase": "admin"
     },
     "last_run": "2019-10-01"
 }
